@@ -197,7 +197,7 @@ fn main() -> io::Result<()> {
                 // extend the group with every word in the dictionary, we will first only consider
                 // words which are heterogrammic with (and later than) the first word in the group,
                 // and we will then filter this set of words even further by including only words
-                // which are hterogrammic with (and later than) all other words which are already in
+                // which are heterogrammic with (and later than) all other words which are already in
                 // the group.
                 let extensions = heterogrammic[g.word().index].par_iter().filter(|&&j| {
                     g.words().all(|w| j > w.index)
@@ -205,10 +205,9 @@ fn main() -> io::Result<()> {
                             .skip(1)
                             .all(|w| heterogrammic[w.index].contains(&j))
                 });
-                extensions.filter_map(|&j| match g.add(words[j].clone()) {
-                    Some(g) => Some(g),
-                    None => None,
-                })
+                // Since we have already filtered for extension words which are heterogrammic with
+                // `g`, `g.add` should always succeed.
+                extensions.map(|&j| g.add(words[j].clone()).unwrap())
             })
             .collect();
     }
